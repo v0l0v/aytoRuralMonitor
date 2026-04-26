@@ -74,7 +74,10 @@ class EUAPIMonitor:
 
     def _get_call_hash(self, call_data: dict) -> str:
         """Genera un hash único para cada convocatoria"""
-        key_str = f"{call_data.get('title', '')}{call_data.get('url', '')}"
+        metadata = call_data.get("metadata", {})
+        identifier_list = metadata.get("identifier", [])
+        identifier = identifier_list[0] if identifier_list else ""
+        key_str = f"{identifier}"
         return hashlib.md5(key_str.encode()).hexdigest()
 
     def _is_already_processed(self, call_hash: str) -> bool:
@@ -103,21 +106,13 @@ class EUAPIMonitor:
     def _is_relevant_to_municipality(self, call_data: dict) -> bool:
         """
         Determina si una convocatoria es relevante para el municipio
-        Verifica:
-        - Palabras clave
-        - Población objetivo
-        - Ubicación geográfica
         """
-        # Extraer título y descripción (pueden estar en formato dict con idiomas)
-        title = call_data.get("title", {})
-        if isinstance(title, dict):
-            title = title.get("en", "") or list(title.values())[0] if title else ""
-        title = (title or "").lower()
+        metadata = call_data.get("metadata", {})
+        title_list = metadata.get("title", [])
+        title = (title_list[0] if title_list else "").lower()
         
-        description = call_data.get("description", {})
-        if isinstance(description, dict):
-            description = description.get("en", "") or list(description.values())[0] if description else ""
-        description = (description or "").lower()
+        desc_list = metadata.get("description", [])
+        description = (desc_list[0] if desc_list else "").lower()
         
         full_text = f"{title} {description}"
 
@@ -139,7 +134,6 @@ class EUAPIMonitor:
         has_location = any(loc in full_text for loc in location_terms)
 
         # Convocatorias sin restricción de población son válidas
-        # Si menciona "municipios pequeños" o "habitantes", considerarla válida
         if "municipios pequeños" in full_text or "habitantes" in full_text:
             return has_location
 
@@ -148,51 +142,53 @@ class EUAPIMonitor:
 
     def _extract_budget(self, call_data: dict) -> str:
         """Extrae información de presupuesto"""
-        budget = call_data.get("budget", "")
+        metadata = call_data.get("metadata", {})
+        budget = metadata.get("estimatedOverallContractAmount", []) or metadata.get("budgetAmount", [])
         if budget:
-            return str(budget)
+            return str(budget[0])
         return "Presupuesto no especificado"
 
     def _extract_deadline(self, call_data: dict) -> str:
         """Extrae la fecha límite"""
-        deadline = call_data.get("deadline", "")
+        metadata = call_data.get("metadata", {})
+        deadline = metadata.get("deadlineDate", []) or metadata.get("cftDeadlineDate", [])
         if deadline:
             try:
-                # Intentar parsear y formatear la fecha
-                date_obj = datetime.fromisoformat(str(deadline).split("T")[0])
+                date_obj = datetime.fromisoformat(str(deadline[0]).split("T")[0])
                 return date_obj.strftime("%d/%m/%Y")
             except:
-                return str(deadline)
+                return str(deadline[0])
         return "Consultar en el sitio web"
 
     def _create_summary(self, call_data: dict) -> dict:
         """Crea un resumen ejecutivo de la convocatoria"""
-        # Extraer título (puede ser string o dict con idiomas)
-        title = call_data.get("title", "Sin título")
-        if isinstance(title, dict):
-            title = title.get("en", "") or list(title.values())[0] if title else "Sin título"
+        metadata = call_data.get("metadata", {})
+        title_list = metadata.get("title", [])
+        title = title_list[0] if title_list else "Sin título"
         
-        # Extraer descripción (puede ser string o dict con idiomas)
-        description = call_data.get("description", "")
-        if isinstance(description, dict):
-            description = description.get("en", "") or list(description.values())[0] if description else ""
+        desc_list = metadata.get("description", [])
+        description = desc_list[0] if desc_list else ""
         
         summary = (description or "")[:500]
         if len(summary) > 0 and not summary.endswith("."):
             summary += "..."
 
+        identifier_list = metadata.get("identifier", [])
+        identifier = identifier_list[0] if identifier_list else ""
+        url = f"https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/{identifier}" if identifier else "https://ec.europa.eu/info/funding-tenders/opportunities/portal/"
+
         return {
             "title": title,
-            "url": call_data.get("url", "https://data.europa.eu"),
+            "url": url,
             "budget": self._extract_budget(call_data),
             "deadline": self._extract_deadline(call_data),
             "summary": summary,
-            "source": call_data.get("source", "EU Portal"),
+            "source": "EU Funding & Tenders Portal",
         }
 
     def search_opportunities(self, term: Optional[str] = None) -> List[dict]:
         """
-        Busca convocatorias en data.europa.eu
+        Busca convocatorias en el portal SEDIA de la Comisión Europea
         """
         if term is None:
             term = self.search_terms[0]
@@ -200,21 +196,26 @@ class EUAPIMonitor:
         logger.info(f"🔍 Buscando: '{term}'...")
 
         try:
-            # Parámetros de búsqueda
-            params = {
-                "query": term,
-                "limit": 50,
-                "offset": 0,
-            }
+            params = {"apiKey": "SEDIA", "text": term, "pageSize": "50", "pageNumber": "1"}
+            query = {"bool": {"must": [{"terms": {"type": ["0","1","2"]}}]}}
+            languages = ["es", "en"]
+            sort = {"field": "sortStatus", "order": "ASC"}
 
-            response = requests.get(
-                self.api_url, params=params, timeout=API_TIMEOUT, headers={"User-Agent": "AytoRural-Monitor/1.0"}
+            response = requests.post(
+                self.api_url,
+                params=params,
+                files={
+                    "query": (None, json.dumps(query), "application/json"),
+                    "languages": (None, json.dumps(languages), "application/json"),
+                    "sort": (None, json.dumps(sort), "application/json"),
+                },
+                timeout=API_TIMEOUT,
+                headers={"User-Agent": "AytoRural-Monitor/2.0"}
             )
             response.raise_for_status()
 
             data = response.json()
-            # La API devuelve resultados en data["result"]["results"]
-            results = data.get("result", {}).get("results", [])
+            results = data.get('results', [])
             logger.info(f"✅ Encontradas {len(results)} convocatorias para '{term}'")
             return results
 

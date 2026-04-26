@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent
 # ============================================================================
 # CONFIGURACIÓN DE LA API
 # ============================================================================
-API_BASE_URL = "https://data.europa.eu/api/hub/search/search"
+API_BASE_URL = "https://api.tech.ec.europa.eu/search-api/prod/rest/search"
 API_TIMEOUT = 30  # segundos
 
 # Términos de búsqueda para filtrar convocatorias relevantes
