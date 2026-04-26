@@ -108,8 +108,17 @@ class EUAPIMonitor:
         - Población objetivo
         - Ubicación geográfica
         """
-        title = (call_data.get("title", "") or "").lower()
-        description = (call_data.get("description", "") or "").lower()
+        # Extraer título y descripción (pueden estar en formato dict con idiomas)
+        title = call_data.get("title", {})
+        if isinstance(title, dict):
+            title = title.get("en", "") or list(title.values())[0] if title else ""
+        title = (title or "").lower()
+        
+        description = call_data.get("description", {})
+        if isinstance(description, dict):
+            description = description.get("en", "") or list(description.values())[0] if description else ""
+        description = (description or "").lower()
+        
         full_text = f"{title} {description}"
 
         # Verificar palabras clave
@@ -158,12 +167,22 @@ class EUAPIMonitor:
 
     def _create_summary(self, call_data: dict) -> dict:
         """Crea un resumen ejecutivo de la convocatoria"""
-        summary = (call_data.get("description", "") or "")[:500]
+        # Extraer título (puede ser string o dict con idiomas)
+        title = call_data.get("title", "Sin título")
+        if isinstance(title, dict):
+            title = title.get("en", "") or list(title.values())[0] if title else "Sin título"
+        
+        # Extraer descripción (puede ser string o dict con idiomas)
+        description = call_data.get("description", "")
+        if isinstance(description, dict):
+            description = description.get("en", "") or list(description.values())[0] if description else ""
+        
+        summary = (description or "")[:500]
         if len(summary) > 0 and not summary.endswith("."):
             summary += "..."
 
         return {
-            "title": call_data.get("title", "Sin título"),
+            "title": title,
             "url": call_data.get("url", "https://data.europa.eu"),
             "budget": self._extract_budget(call_data),
             "deadline": self._extract_deadline(call_data),
@@ -194,7 +213,8 @@ class EUAPIMonitor:
             response.raise_for_status()
 
             data = response.json()
-            results = data.get("results", [])
+            # La API devuelve resultados en data["result"]["results"]
+            results = data.get("result", {}).get("results", [])
             logger.info(f"✅ Encontradas {len(results)} convocatorias para '{term}'")
             return results
 
