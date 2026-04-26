@@ -584,3 +584,24 @@ input:checked + .slider:before {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
 }
+
+/* Year Headers for grouped results */
+.year-header {
+    grid-column: 1 / -1;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.year-header::before {
+    content: "📅";
+    font-size: 1.5rem;
+}

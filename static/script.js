@@ -174,27 +174,70 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        calls.forEach((call, index) => {
-            const delay = index * 0.1;
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.style.animationDelay = `${delay}s`;
-            
-            card.innerHTML = `
-                <h3 class="card-title" title="${call.title}">${call.title}</h3>
-                <div class="card-meta">
-                    <span class="meta-item">💰 ${call.budget}</span>
-                    <span class="meta-item">📅 ${call.deadline}</span>
-                </div>
-                <p class="card-desc">${call.summary}</p>
-                <div class="card-actions">
-                    <button class="link-btn view-more-btn" data-index="${index}" style="background:none; border:none; cursor:pointer; font-family:inherit;">Ver más...</button>
-                    <button class="secondary-btn notify-btn" data-index="${index}">
-                        📲 Notificar
-                    </button>
-                </div>
-            `;
-            cardsContainer.appendChild(card);
+        // Helper to parse date "dd/mm/yyyy"
+        const parseDate = (dateStr) => {
+            if (!dateStr || !dateStr.includes('/')) return new Date(0); // For sorting purposes, "Sin fecha" goes to bottom
+            const parts = dateStr.split('/');
+            if (parts.length !== 3) return new Date(0);
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+        };
+
+        // Sort calls descending by date
+        calls.sort((a, b) => parseDate(b.deadline).getTime() - parseDate(a.deadline).getTime());
+
+        // Group by year
+        const groupedCalls = {};
+        calls.forEach(call => {
+            let year = "Sin fecha definida";
+            if (call.deadline && call.deadline.includes('/')) {
+                const parts = call.deadline.split('/');
+                if (parts.length === 3) year = parts[2];
+            }
+            if (!groupedCalls[year]) groupedCalls[year] = [];
+            groupedCalls[year].push(call);
+        });
+
+        // Sort years descending
+        const sortedYears = Object.keys(groupedCalls).sort((a, b) => {
+            if (a === "Sin fecha definida") return 1;
+            if (b === "Sin fecha definida") return -1;
+            return parseInt(b) - parseInt(a);
+        });
+
+        cardsContainer.innerHTML = '';
+        let globalIndex = 0;
+
+        sortedYears.forEach(year => {
+            // Inject year header
+            const header = document.createElement('h2');
+            header.className = 'year-header';
+            header.textContent = year;
+            cardsContainer.appendChild(header);
+
+            // Inject cards for this year
+            groupedCalls[year].forEach((call) => {
+                const delay = (globalIndex % 10) * 0.1; // reset delay to avoid extremely long animations
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.animationDelay = `${delay}s`;
+                
+                card.innerHTML = `
+                    <h3 class="card-title" title="${call.title}">${call.title}</h3>
+                    <div class="card-meta">
+                        <span class="meta-item">💰 ${call.budget}</span>
+                        <span class="meta-item">📅 ${call.deadline}</span>
+                    </div>
+                    <p class="card-desc">${call.summary}</p>
+                    <div class="card-actions">
+                        <button class="link-btn view-more-btn" data-index="${globalIndex}" style="background:none; border:none; cursor:pointer; font-family:inherit;">Ver más...</button>
+                        <button class="secondary-btn notify-btn" data-index="${globalIndex}">
+                            📲 Notificar
+                        </button>
+                    </div>
+                `;
+                cardsContainer.appendChild(card);
+                globalIndex++;
+            });
         });
 
         // Add Notify Listeners
