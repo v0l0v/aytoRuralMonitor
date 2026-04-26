@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const cardsContainer = document.getElementById('cards-container');
     const resultsCount = document.getElementById('results-count');
     const resultsTitle = document.getElementById('results-title');
+    const modal = document.getElementById('call-modal');
+    const closeModalBtn = document.getElementById('close-modal');
 
     let currentScope = 'national';
     let geographyData = {};
@@ -186,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <p class="card-desc">${call.summary}</p>
                 <div class="card-actions">
-                    <a href="${call.url}" target="_blank" class="link-btn">Ver original ↗</a>
+                    <button class="link-btn view-more-btn" data-index="${index}" style="background:none; border:none; cursor:pointer; font-family:inherit;">Ver más...</button>
                     <button class="secondary-btn notify-btn" data-index="${index}">
                         📲 Notificar
                     </button>
@@ -198,12 +200,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add Notify Listeners
         document.querySelectorAll('.notify-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const idx = e.target.dataset.index;
+                const idx = e.currentTarget.dataset.index;
                 const callToNotify = calls[idx];
-                const originalText = e.target.innerHTML;
                 
-                e.target.innerHTML = 'Enviando...';
-                e.target.disabled = true;
+                e.currentTarget.innerHTML = 'Enviando...';
+                e.currentTarget.disabled = true;
 
                 fetch('/api/notify', {
                     method: 'POST',
@@ -213,20 +214,86 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        e.target.innerHTML = '✅ Enviado';
+                        e.currentTarget.innerHTML = '✅ Enviado';
                         showToast();
                     } else {
-                        e.target.innerHTML = '❌ Error';
-                        e.target.disabled = false;
+                        e.currentTarget.innerHTML = '❌ Error';
+                        e.currentTarget.disabled = false;
                     }
                 })
                 .catch(() => {
-                    e.target.innerHTML = '❌ Error';
-                    e.target.disabled = false;
+                    e.currentTarget.innerHTML = '❌ Error';
+                    e.currentTarget.disabled = false;
                 });
             });
         });
+
+        // Add View More Listeners
+        document.querySelectorAll('.view-more-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = e.currentTarget.dataset.index;
+                const call = calls[idx];
+                openModal(call, idx);
+            });
+        });
     }
+
+    function openModal(call, index) {
+        document.getElementById('modal-title').textContent = call.title;
+        document.getElementById('modal-budget').textContent = `💰 ${call.budget}`;
+        document.getElementById('modal-deadline').textContent = `📅 ${call.deadline}`;
+        document.getElementById('modal-desc').textContent = call.summary;
+        document.getElementById('modal-url').href = call.url;
+        
+        const notifyBtn = document.getElementById('modal-notify-btn');
+        notifyBtn.dataset.index = index;
+        notifyBtn.innerHTML = '📲 Notificar al Alcalde';
+        notifyBtn.disabled = false;
+
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Evitar scroll del fondo
+    }
+
+    closeModalBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Notify logic for Modal button
+    document.getElementById('modal-notify-btn').addEventListener('click', (e) => {
+        const idx = e.currentTarget.dataset.index;
+        const callToNotify = currentCalls[idx];
+        
+        e.currentTarget.innerHTML = 'Enviando...';
+        e.currentTarget.disabled = true;
+
+        fetch('/api/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(callToNotify)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                e.currentTarget.innerHTML = '✅ Enviado';
+                showToast();
+            } else {
+                e.currentTarget.innerHTML = '❌ Error';
+                e.currentTarget.disabled = false;
+            }
+        })
+        .catch(() => {
+            e.currentTarget.innerHTML = '❌ Error';
+            e.currentTarget.disabled = false;
+        });
+    });
 
     function showToast() {
         const toast = document.getElementById('toast');
