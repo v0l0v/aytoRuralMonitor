@@ -1,0 +1,14 @@
+# Core dependencies
+requests==2.31.0          # Para consultas HTTP a la API
+python-dotenv==1.0.0      # Para variables de entorno desde .env
+
+# Scheduling
+APScheduler==3.10.4       # Para ejecutar tareas periódicamente
+
+# Notifications
+twilio==9.0.0             # Para enviar mensajes por WhatsApp (opcional)
+
+# Development (opcional)
+# pytest==7.4.0           # Para testing
+# black==23.9.1           # Para formateo de código
+# flake8==6.1.0           # Para linting
