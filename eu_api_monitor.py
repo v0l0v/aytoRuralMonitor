@@ -229,7 +229,7 @@ class EUAPIMonitor:
             logger.error("❌ Respuesta API no es JSON válido")
             return []
 
-    def process_search_results(self, results: List[dict], only_new: bool = True) -> List[dict]:
+    def process_search_results(self, results: List[dict], only_new: bool = True, strict_rural_filter: bool = True) -> List[dict]:
         """
         Procesa resultados de búsqueda y filtra por relevancia
         """
@@ -243,8 +243,8 @@ class EUAPIMonitor:
                 logger.debug(f"⊘ Convocatoria ya procesada: {call.get('title', '')}")
                 continue
 
-            # Verificar relevancia
-            if not self._is_relevant_to_municipality(call):
+            # Verificar relevancia si el filtro estricto está activado
+            if strict_rural_filter and not self._is_relevant_to_municipality(call):
                 logger.debug(f"⊘ No relevante: {call.get('title', '')}")
                 continue
 

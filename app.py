@@ -25,6 +25,7 @@ def search_calls():
     data = request.json
     scope = data.get('scope', 'national')
     term = data.get('term', 'España')
+    strict_filter = data.get('strict_filter', True)
 
     if scope == 'national':
         search_term = "España"
@@ -37,8 +38,8 @@ def search_calls():
         # Buscar resultados
         results = monitor.search_opportunities(search_term)
         
-        # Procesar y filtrar (only_new=False para mostrar todo lo activo)
-        processed_calls = monitor.process_search_results(results, only_new=False)
+        # Procesar y filtrar
+        processed_calls = monitor.process_search_results(results, only_new=False, strict_rural_filter=strict_filter)
         
         return jsonify({"success": True, "calls": processed_calls})
     except Exception as e:

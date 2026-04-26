@@ -129,10 +129,16 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsSection.classList.add('hidden');
         cardsContainer.innerHTML = '';
 
+        const strictFilter = document.getElementById('strict-filter-toggle').checked;
+
         fetch('/api/search', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ scope: currentScope, term: term })
+            body: JSON.stringify({ 
+                scope: currentScope, 
+                term: term,
+                strict_filter: strictFilter
+            })
         })
         .then(res => res.json())
         .then(data => {
