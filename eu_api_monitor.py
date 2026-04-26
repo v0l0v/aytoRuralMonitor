@@ -175,8 +175,16 @@ class EUAPIMonitor:
 
         identifier_list = metadata.get("identifier", [])
         identifier = identifier_list[0] if identifier_list else ""
-        url = f"https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/{identifier}" if identifier else "https://ec.europa.eu/info/funding-tenders/opportunities/portal/"
+        
+        cft_id_list = metadata.get("cftId", [])
+        cft_id = cft_id_list[0] if cft_id_list else ""
 
+        if cft_id:
+            url = f"https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/tender-details/{cft_id}"
+        elif identifier:
+            url = f"https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/{identifier}"
+        else:
+            url = "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/calls-for-proposals"
         return {
             "title": title,
             "url": url,
