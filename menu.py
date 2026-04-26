@@ -58,14 +58,14 @@ def run_search_ui():
 
     search_term = ""
     if scope == "🇪🇸 Nacional (Toda España)":
-        search_term = "España rural"
+        search_term = "España"
     
     elif scope == "🗺️ Regional (Comunidad Autónoma)":
         ccaa = questionary.select(
             "Selecciona la Comunidad Autónoma:",
             choices=sorted(list(SPAIN_GEOGRAPHY.keys()))
         ).ask()
-        search_term = f"{ccaa} rural"
+        search_term = ccaa
         
     elif scope == "📍 Provincial":
         ccaa = questionary.select(
@@ -76,7 +76,7 @@ def run_search_ui():
             f"Ahora, selecciona la provincia de {ccaa}:",
             choices=sorted(SPAIN_GEOGRAPHY[ccaa])
         ).ask()
-        search_term = f"{provincia} rural"
+        search_term = provincia
         
     elif scope == "🔍 Búsqueda por palabra clave libre":
         search_term = questionary.text("Escribe el término de búsqueda:").ask()

@@ -41,6 +41,11 @@ RELEVANT_KEYWORDS = {
     "desarrollo local",
     "cofinanciación",
     "europeo",
+    "subvención",
+    "ayuda",
+    "convocatoria",
+    "financiación",
+    "fondos",
 }
 
 # Máximo número de habitantes para considerar el municipio
