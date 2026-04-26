@@ -12,3 +12,6 @@ twilio==9.0.0             # Para enviar mensajes por WhatsApp (opcional)
 # pytest==7.4.0           # Para testing
 # black==23.9.1           # Para formateo de código
 # flake8==6.1.0           # Para linting
+# UI/Interactivity
+rich==13.7.0              # Para tablas y diseño visual en terminal
+questionary==2.0.1        # Para menús interactivos guiados

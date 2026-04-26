@@ -219,7 +219,7 @@ class EUCallsMonitor:
             # Enviar notificación
             if notify:
                 try:
-                    self.notification_service.send_to_alcalde_and_secretario(call)
+                    self.notification_service.send_notifications(call)
                 except Exception as e:
                     logger.error(f"Error enviando notificación: {e}")
 

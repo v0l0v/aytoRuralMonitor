@@ -106,7 +106,7 @@ def cmd_stats(args):
 
 def cmd_clean(args):
     """Limpia el historial de convocatorias procesadas"""
-    if args.confirm:
+    if args.yes:
         confirm = "yes"
     else:
         confirm = input("⚠️  ¿Borrar todo el historial? (escribir 'yes' para confirmar): ")

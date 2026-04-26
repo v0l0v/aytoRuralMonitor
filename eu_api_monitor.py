@@ -281,7 +281,7 @@ class EUAPIMonitor:
             logger.info(f"📢 Enviando {len(all_new_calls)} notificaciones...")
             for call in all_new_calls:
                 try:
-                    self.notification_service.send_to_alcalde_and_secretario(call)
+                    self.notification_service.send_notifications(call)
                 except Exception as e:
                     logger.error(f"Error enviando notificación: {e}")
 

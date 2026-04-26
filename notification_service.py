@@ -9,13 +9,11 @@ from datetime import datetime
 import requests
 from config import (
     TELEGRAM_BOT_TOKEN,
-    TELEGRAM_CHAT_ID_ALCALDE,
-    TELEGRAM_CHAT_ID_SECRETARIO,
+    TELEGRAM_RECIPIENTS,
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,
     TWILIO_WHATSAPP_NUMBER,
-    WHATSAPP_ALCALDE,
-    WHATSAPP_SECRETARIO,
+    WHATSAPP_RECIPIENTS,
     MUNICIPALITY_CONFIG,
 )
 
@@ -30,11 +28,11 @@ class NotificationService:
         self.whatsapp_enabled = bool(TWILIO_ACCOUNT_SID)
         self.municipality_name = MUNICIPALITY_CONFIG.get("name", "Municipio")
 
-    def send_to_alcalde_and_secretario(
+    def send_notifications(
         self, call_summary: dict, notification_method: str = "both"
     ) -> bool:
         """
-        Envía notificación al alcalde y secretario
+        Envía notificación a todos los destinatarios configurados
         notification_method: 'telegram', 'whatsapp' o 'both'
         """
         message = self._format_message(call_summary)
@@ -42,21 +40,19 @@ class NotificationService:
 
         if notification_method in ("telegram", "both"):
             if self.telegram_enabled:
-                success &= self._send_telegram(
-                    TELEGRAM_CHAT_ID_ALCALDE, message, "Alcalde"
-                )
-                success &= self._send_telegram(
-                    TELEGRAM_CHAT_ID_SECRETARIO, message, "Secretario"
-                )
+                for chat_id in TELEGRAM_RECIPIENTS:
+                    success &= self._send_telegram(
+                        chat_id, message, f"Destinatario TG ({chat_id})"
+                    )
             else:
                 logger.warning("Telegram no está configurado")
 
         if notification_method in ("whatsapp", "both"):
             if self.whatsapp_enabled:
-                success &= self._send_whatsapp(WHATSAPP_ALCALDE, message, "Alcalde")
-                success &= self._send_whatsapp(
-                    WHATSAPP_SECRETARIO, message, "Secretario"
-                )
+                for phone_number in WHATSAPP_RECIPIENTS:
+                    success &= self._send_whatsapp(
+                        phone_number, message, f"Destinatario WA ({phone_number})"
+                    )
             else:
                 logger.warning("WhatsApp/Twilio no está configurado")
 
@@ -145,11 +141,11 @@ class NotificationService:
             "url": "https://data.europa.eu",
         }
         logger.info("📤 Enviando mensaje de prueba...")
-        return self.send_to_alcalde_and_secretario(test_call, notification_method)
+        return self.send_notifications(test_call, notification_method)
 
 
 # Función helper
 def notify_new_call(call_data: dict, method: str = "both") -> bool:
     """Función simplificada para enviar una notificación"""
     service = NotificationService()
-    return service.send_to_alcalde_and_secretario(call_data, method)
+    return service.send_notifications(call_data, method)

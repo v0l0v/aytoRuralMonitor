@@ -52,15 +52,17 @@ MAX_INHABITANTS = 5000
 
 # TELEGRAM
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")  # Obtener del archivo .env
-TELEGRAM_CHAT_ID_ALCALDE = os.getenv("TELEGRAM_CHAT_ID_ALCALDE", "")
-TELEGRAM_CHAT_ID_SECRETARIO = os.getenv("TELEGRAM_CHAT_ID_SECRETARIO", "")
+# IDs de destinatarios (pueden ser varios separados por coma)
+_tg_ids = os.getenv("TELEGRAM_RECIPIENTS", os.getenv("TELEGRAM_CHAT_ID_ALCALDE", ""))
+TELEGRAM_RECIPIENTS = [i.strip() for i in _tg_ids.split(",") if i.strip()]
 
 # WHATSAPP (usando Twilio)
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
 TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_WHATSAPP_NUMBER", "")  # ej: "whatsapp:+34600123456"
-WHATSAPP_ALCALDE = os.getenv("WHATSAPP_ALCALDE", "")  # ej: "whatsapp:+34700987654"
-WHATSAPP_SECRETARIO = os.getenv("WHATSAPP_SECRETARIO", "")
+# Números de destinatarios (pueden ser varios separados por coma)
+_wa_nums = os.getenv("WHATSAPP_RECIPIENTS", os.getenv("WHATSAPP_ALCALDE", ""))
+WHATSAPP_RECIPIENTS = [n.strip() for n in _wa_nums.split(",") if n.strip()]
 
 # ============================================================================
 # CONFIGURACIÓN DE ALMACENAMIENTO LOCAL
@@ -98,3 +100,28 @@ LOG_LEVEL = "INFO"
 # ============================================================================
 # Tiempo de cacheo de resultados en minutos (evita consultas duplicadas)
 CACHE_DURATION_MINUTES = 60
+
+# ============================================================================
+# DATOS GEOGRÁFICOS DE ESPAÑA
+# ============================================================================
+SPAIN_GEOGRAPHY = {
+    "Andalucía": ["Almería", "Cádiz", "Córdoba", "Granada", "Huelva", "Jaén", "Málaga", "Sevilla"],
+    "Aragón": ["Huesca", "Teruel", "Zaragoza"],
+    "Asturias": ["Asturias"],
+    "Baleares": ["Islas Baleares"],
+    "Canarias": ["Las Palmas", "Santa Cruz de Tenerife"],
+    "Cantabria": ["Cantabria"],
+    "Castilla y León": ["Ávila", "Burgos", "León", "Palencia", "Salamanca", "Segovia", "Soria", "Valladolid", "Zamora"],
+    "Castilla-La Mancha": ["Albacete", "Ciudad Real", "Cuenca", "Guadalajara", "Toledo"],
+    "Cataluña": ["Barcelona", "Gerona", "Lérida", "Tarragona"],
+    "Comunidad Valenciana": ["Alicante", "Castellón", "Valencia"],
+    "Extremadura": ["Badajoz", "Cáceres"],
+    "Galicia": ["La Coruña", "Lugo", "Orense", "Pontevedra"],
+    "Madrid": ["Madrid"],
+    "Murcia": ["Murcia"],
+    "Navarra": ["Navarra"],
+    "País Vasco": ["Álava", "Guipúzcoa", "Vizcaya"],
+    "La Rioja": ["La Rioja"],
+    "Ceuta": ["Ceuta"],
+    "Melilla": ["Melilla"]
+}

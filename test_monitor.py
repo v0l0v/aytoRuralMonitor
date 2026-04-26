@@ -28,7 +28,10 @@ def test_api_connection():
 
     if results:
         logger.info(f"✅ Conexión exitosa. Se obtuvieron {len(results)} resultados")
-        logger.info(f"Primera resultado: {results[0].get('title', 'N/A')[:80]}")
+        title = results[0].get("title", "N/A")
+        if isinstance(title, dict):
+            title = title.get("en", "") or (list(title.values())[0] if title else "N/A")
+        logger.info(f"Primera resultado: {str(title)[:80]}")
         return True
     else:
         logger.error("❌ No se obtuvieron resultados")

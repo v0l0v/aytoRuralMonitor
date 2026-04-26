@@ -125,7 +125,7 @@ def ejemplo_notificacion_personalizada():
     }
 
     print("Envío de notificación personalizada:")
-    # success = service.send_to_alcalde_and_secretario(convocatoria_ejemplo)
+    # success = service.send_notifications(convocatoria_ejemplo)
     # if success:
     print("✅ Notificación enviada exitosamente")
     # else:
