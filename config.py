@@ -73,7 +73,7 @@ LOG_FILE = DATA_DIR / "app.log"
 # CONFIGURACIÓN DEL SCHEDULER
 # ============================================================================
 # Intervalo de consulta en minutos (cada 6 horas = 360 minutos)
-CHECK_INTERVAL_MINUTES = 360
+CHECK_INTERVAL_MINUTES = 60
 
 # ============================================================================
 # INFORMACIÓN DEL MUNICIPIO (PERSONALIZAR)
