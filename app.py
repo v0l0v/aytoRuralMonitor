@@ -2,7 +2,7 @@ import os
 import json
 from flask import Flask, render_template, request, jsonify
 from eu_api_monitor import EUAPIMonitor
-from config import SPAIN_GEOGRAPHY
+from config import SPAIN_GEOGRAPHY, MUNICIPALITY_CONFIG
 
 app = Flask(__name__)
 
@@ -12,7 +12,7 @@ monitor = EUAPIMonitor()
 @app.route('/')
 def index():
     """Sirve la página web principal"""
-    return render_template('index.html')
+    return render_template('index.html', municipality_name=MUNICIPALITY_CONFIG.get('name', 'tu municipio'))
 
 @app.route('/api/geography', methods=['GET'])
 def get_geography():

@@ -212,7 +212,7 @@ def main_menu():
                     rprint("[yellow]No hay historial que borrar.[/yellow]")
                 time.sleep(1)
         elif choice == "❌ Salir":
-            rprint("[cyan]👋 ¡Hasta pronto! Sigue cuidando de Uclés.[/cyan]")
+            rprint(f"[cyan]👋 ¡Hasta pronto! Sigue cuidando de {MUNICIPALITY_CONFIG['name']}.[/cyan]")
             break
 
 if __name__ == "__main__":
