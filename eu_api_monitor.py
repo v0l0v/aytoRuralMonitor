@@ -228,7 +228,7 @@ class EUAPIMonitor:
             logger.error("❌ Respuesta API no es JSON válido")
             return []
 
-    def process_search_results(self, results: List[dict]) -> List[dict]:
+    def process_search_results(self, results: List[dict], only_new: bool = True) -> List[dict]:
         """
         Procesa resultados de búsqueda y filtra por relevancia
         """
@@ -237,8 +237,8 @@ class EUAPIMonitor:
         for call in results:
             call_hash = self._get_call_hash(call)
 
-            # Saltar si ya fue procesado
-            if self._is_already_processed(call_hash):
+            # Saltar si ya fue procesado (solo si buscamos solo nuevas)
+            if only_new and self._is_already_processed(call_hash):
                 logger.debug(f"⊘ Convocatoria ya procesada: {call.get('title', '')}")
                 continue
 

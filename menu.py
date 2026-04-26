@@ -95,12 +95,12 @@ def run_search_ui():
         results = monitor.search_opportunities(search_term)
         
         progress.update(task, description="Filtrando convocatorias relevantes...")
-        new_calls = monitor.process_search_results(results)
+        new_calls = monitor.process_search_results(results, only_new=False)
 
     if not new_calls:
-        rprint(f"\n[yellow]ℹ️ No se han encontrado nuevas convocatorias para '{search_term}' en este momento.[/yellow]")
+        rprint(f"\n[yellow]ℹ️ No se han encontrado convocatorias activas para '{search_term}' en este momento.[/yellow]")
     else:
-        rprint(f"\n[bold green]✨ ¡Se han encontrado {len(new_calls)} oportunidades para '{search_term}'![/bold green]")
+        rprint(f"\n[bold green]✨ ¡Se han encontrado {len(new_calls)} convocatorias activas para '{search_term}'![/bold green]")
         
         table = Table(title=f"Resultados para {search_term}")
         table.add_column("Título", style="cyan", no_wrap=False)
