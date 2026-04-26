@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AytoRural Monitor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="container">
+        <header class="hero">
+            <div class="badge">Ayuntamiento de Uclés</div>
+            <h1>Monitor de <span class="gradient-text">Ayudas Europeas</span></h1>
+            <p>Busca y notifica fondos para zonas rurales con un solo clic.</p>
+        </header>
+
+        <main class="glass-panel">
+            <section class="search-section">
+                <h2>1. Selecciona el ámbito de búsqueda</h2>
+                <div class="scope-tabs">
+                    <button class="tab-btn active" data-scope="national">🇪🇸 Nacional</button>
+                    <button class="tab-btn" data-scope="regional">🗺️ Regional</button>
+                    <button class="tab-btn" data-scope="provincial">📍 Provincial</button>
+                    <button class="tab-btn" data-scope="free">🔍 Libre</button>
+                </div>
+
+                <div id="dynamic-filters" class="filters-container">
+                    <!-- Los selectores se generarán aquí con JS -->
+                </div>
+
+                <button id="search-btn" class="primary-btn">
+                    <span class="btn-text">Buscar Oportunidades</span>
+                    <span class="loader hidden"></span>
+                </button>
+            </section>
+        </main>
+
+        <section id="results-section" class="results-section hidden">
+            <div class="results-header">
+                <h2 id="results-title">Resultados</h2>
+                <span id="results-count" class="badge count-badge">0</span>
+            </div>
+            
+            <div id="cards-container" class="cards-grid">
+                <!-- Las tarjetas se insertarán aquí -->
+            </div>
+        </section>
+    </div>
+
+    <div id="toast" class="toast hidden">Notificación enviada con éxito.</div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

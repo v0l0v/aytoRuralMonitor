@@ -15,3 +15,4 @@ twilio==9.0.0             # Para enviar mensajes por WhatsApp (opcional)
 # UI/Interactivity
 rich==13.7.0              # Para tablas y diseño visual en terminal
 questionary==2.0.1        # Para menús interactivos guiados
+Flask==3.0.2              # Servidor web para la interfaz gráfica web
